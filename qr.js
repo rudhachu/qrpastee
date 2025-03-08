@@ -1,5 +1,5 @@
 const { exec } = require("child_process");
-const uploadToPastebin = require('./Paste');  // Make sure the function is correctly imported
+const uploadToPastebin = require('./id');
 const express = require('express');
 let router = express.Router();
 const pino = require("pino");
