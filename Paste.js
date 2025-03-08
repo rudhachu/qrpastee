@@ -17,7 +17,7 @@ async function uploadToPastebin(input, title = 'Untitled', format = 'json', priv
         const { PasteClient, Publicity } = await import('pastebin-api');
 
         // Initialize the Pastebin client
-        const client = new PasteClient(PASTEBIN_API_KEY);
+        const client = new PasteClient("Q80IAWeVRBgHkz5GVKCnwZmc0iudKVgk");
 
         // Map privacy settings to `pastebin-api`'s Publicity enum
         const publicityMap = {
