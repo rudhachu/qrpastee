@@ -1,5 +1,5 @@
 const { exec } = require("child_process");
-const uploadToPastebin = require('./id');
+const uploadToPastebin = require('./pastebin');
 const express = require('express');
 let router = express.Router();
 const pino = require("pino");
@@ -9,42 +9,34 @@ const path = require('path');
 const fs = require("fs-extra");
 const { Boom } = require("@hapi/boom");
 
-const MESSAGE = process.env.MESSAGE || `
-*SESSION GENERATED SUCCESSFULY* ✅
 
-*Gɪᴠᴇ ᴀ ꜱᴛᴀʀ ᴛᴏ ʀᴇᴘᴏ ꜰᴏʀ ᴄᴏᴜʀᴀɢᴇ* 🌟
-https://github.com/GuhailTechInfo/MEGA-AI
-
-*Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ ꜰᴏʀ ϙᴜᴇʀʏ* 💭
-https://t.me/Global_TechInfo
-https://whatsapp.com/channel/0029VagJIAr3bbVBCpEkAM07
-
-*Yᴏᴜ-ᴛᴜʙᴇ ᴛᴜᴛᴏʀɪᴀʟꜱ* 🪄 
-https://youtube.com/GlobalTechInfo
-
-*MEGA-AI--WHATSAPP* 🥀
-`;
-
-if (fs.existsSync('./auth_info_baileys')) {
-  fs.emptyDirSync(__dirname + '/auth_info_baileys');
+if (fs.existsSync("./temp")) {
+  fs.emptyDirSync(__dirname, "/temp");
 }
 
 router.get('/', async (req, res) => {
-  const { default: SuhailWASocket, useMultiFileAuthState, Browsers, delay, DisconnectReason, makeInMemoryStore } = require("@whiskeysockets/baileys");
+  const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    Browsers,
+    delay,
+    DisconnectReason,
+    makeInMemoryStore,
+  } = require("@whiskeysockets/baileys");
   const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) });
 
-  async function SUHAIL() {
-    const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys');
+  async function Getqr() {
+    const { state, saveCreds } = await useMultiFileAuthState(__dirname, "/temp");
 
     try {
-      let Smd = SuhailWASocket({
+      let session = makeWASocket({
         printQRInTerminal: false,
         logger: pino({ level: "silent" }),
         browser: Browsers.macOS("Desktop"),
         auth: state
       });
 
-      Smd.ev.on("connection.update", async (s) => {
+      session.ev.on("connection.update", async (s) => {
         const { connection, lastDisconnect, qr } = s;
 
         if (qr) {
@@ -64,14 +56,14 @@ router.get('/', async (req, res) => {
 
         if (connection === "open") {
           await delay(3000);
-          let user = Smd.user.id;
+          let user = session.user.id;
 
           //===========================================================================================
           //===============================  SESSION ID    ===========================================
           //===========================================================================================
 
-          const auth_path = './auth_info_baileys/';
-          const credsFilePath = auth_path + 'creds.json';
+          const auth_path = "./temp/";
+          const credsFilePath = auth_path + "creds.json";
 
           // Upload the creds.json file to Pastebin directly
           const pastebinUrl = await uploadToPastebin(credsFilePath, 'creds.json', 'json', '1');
@@ -84,18 +76,19 @@ SESSION-ID ==> ${Scan_Id}
 -------------------   SESSION CLOSED   -----------------------
 `);
 
-          let msgsss = await Smd.sendMessage(user, { text: Scan_Id });
-          await Smd.sendMessage(user, { text: MESSAGE }, { quoted: msgsss });
+          let sessionMsg = await session.sendMessage(user, { text: Scan_Id });
+          const qrMsg = `\n*ᴅᴇᴀʀ ᴜsᴇʀ ᴛʜɪs ɪs ʏᴏᴜʀ sᴇssɪᴏɴ ɪᴅ*\n\n◕ ⚠️ *ᴘʟᴇᴀsᴇ ᴅᴏ ɴᴏᴛ sʜᴀʀᴇ ᴛʜɪs ᴄᴏᴅᴇ ᴡɪᴛʜ ᴀɴʏᴏɴᴇ ᴀs ɪᴛ ᴄᴏɴᴛᴀɪɴs ʀᴇǫᴜɪʀᴇᴅ ᴅᴀᴛᴀ ᴛᴏ ɢᴇᴛ ʏᴏᴜʀ ᴄᴏɴᴛᴀᴄᴛ ᴅᴇᴛᴀɪʟs ᴀɴᴅ ᴀᴄᴄᴇss ʏᴏᴜʀ ᴡʜᴀᴛsᴀᴘᴘ*`;
+          await session.sendMessage(user, { text: qrMsg }, { quoted: sessionMsg });
           await delay(1000);
 
           try {
-            await fs.emptyDirSync(__dirname + '/auth_info_baileys');
+            await fs.emptyDirSync(__dirname, "/temp");
           } catch (e) {
             console.error('Error clearing directory:', e);
           }
         }
 
-        Smd.ev.on('creds.update', saveCreds);
+        session.ev.on('creds.update', saveCreds);
 
         if (connection === "close") {
           let reason = new Boom(lastDisconnect?.error)?.output.statusCode;
@@ -106,14 +99,14 @@ SESSION-ID ==> ${Scan_Id}
             console.log("Connection Lost from Server!");
           } else if (reason === DisconnectReason.restartRequired) {
             console.log("Restart Required, Restarting...");
-            SUHAIL().catch(err => console.log(err));
+            Getqr().catch(err => console.log(err));
           } else if (reason === DisconnectReason.timedOut) {
             console.log("Connection TimedOut!");
           } else {
             console.log('Connection closed with bot. Please run again.');
             console.log(reason);
             await delay(5000);
-            exec('pm2 restart qasim');
+            exec('pm2 restart rudhra');
             process.exit(0);
           }
         }
@@ -121,18 +114,18 @@ SESSION-ID ==> ${Scan_Id}
 
     } catch (err) {
       console.log(err);
-      exec('pm2 restart qasim');
-      await fs.emptyDirSync(__dirname + '/auth_info_baileys');
+      exec('pm2 restart rudhra');
+      await fs.emptyDirSync(__dirname, "/temp");
     }
   }
 
-  SUHAIL().catch(async (err) => {
+  Getqr().catch(async (err) => {
     console.log(err);
-    await fs.emptyDirSync(__dirname + '/auth_info_baileys');
-    exec('pm2 restart qasim');
+    await fs.emptyDirSync(__dirname, "/temp");
+    exec('pm2 restart rudhra');
   });
 
-  return await SUHAIL();
+  return await Getqr();
 });
 
 module.exports = router;
