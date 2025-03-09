@@ -11,8 +11,7 @@ const path = require('path');
  */
 async function uploadToPastebin(input, title = 'Untitled', format = 'json', privacy = '1') {
     try {
-        // Dynamically import the `pastebin-api` ES module
-        const { PasteClient, Publicity } = await import('pastebin-api');
+        const { PasteClient, Publicity } = require("pastebin-api");
 
         // Initialize the Pastebin client
         const client = new PasteClient("Q80IAWeVRBgHkz5GVKCnwZmc0iudKVgk");
