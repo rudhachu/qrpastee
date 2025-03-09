@@ -8,12 +8,12 @@
     "node": ">=20.0.0"
     },
   "scripts": {
-    "run": "pm2 start index.js --deep-monitoring --attach --name qasim",
-    "qasim": "pm2 start index.js --deep-monitoring --attach --name qasim",
-    "start": "pm2 start index.js --deep-monitoring --attach --name qasim",
-    "stop": "pm2 stop qasim",
-    "restart": "pm2 restart qasim",
-    "reload": "pm2 reload qasim",
+    "run": "pm2 start index.js --deep-monitoring --attach --name rudhra",
+    "qasim": "pm2 start index.js --deep-monitoring --attach --name rudhra",
+    "start": "pm2 start index.js --deep-monitoring --attach --name rudhra",
+    "stop": "pm2 stop rudhra",
+    "restart": "pm2 restart rudhra",
+    "reload": "pm2 reload rudhra",
     "dev": "nodemon index.js"
   },
   "keywords": [
